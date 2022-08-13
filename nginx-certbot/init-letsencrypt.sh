@@ -78,3 +78,6 @@ echo
 
 echo "### Reloading nginx ..."
 docker-compose exec nginx nginx -s reload
+
+echo "### Starting the docker-compose setup ..."
+docker-compose up -d
