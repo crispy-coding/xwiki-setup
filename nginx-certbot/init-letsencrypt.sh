@@ -40,6 +40,13 @@ echo
 
 echo "### Starting nginx ..."
 docker-compose up --force-recreate -d nginx
+
+cd ../xwiki
+chmod +x init-xwiki.sh
+. init-xwiki.sh
+cd ../nginx-certbot
+sleep 5
+
 echo
 
 echo "### Deleting dummy certificate for $domains ..."
