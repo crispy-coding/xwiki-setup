@@ -1,0 +1,40 @@
+version: '3.1'
+
+services:
+  web:
+    image: "xwiki:13.10.8"
+    container_name: xwiki-web
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      - DB_USER=xwiki
+      - DB_PASSWORD=db-user-password
+      - DB_HOST=xwiki-mariadb-db
+    volumes:
+      - ./data/web:/usr/local/xwiki
+      - ./config/server.xml:/usr/local/tomcat/conf/server.xml
+    networks:
+      - xwiki
+      - nginx
+  db:
+    image: "mariadb:10.7.3"
+    container_name: xwiki-mariadb-db
+    volumes:
+      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/xwiki.cnf:/etc/mysql/conf.d/xwiki.cnf
+      - ./data/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=db-root-password
+      - MYSQL_USER=xwiki
+      - MYSQL_PASSWORD=db-user-password
+      - MYSQL_DATABASE=xwiki
+    networks:
+      - xwiki
+
+networks:
+  xwiki:
+    name: xwiki
+  nginx:
+    name: nginx
