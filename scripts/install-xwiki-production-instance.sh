@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TODO Check if other software is needed.
+# TODO Check if other software is needed: envsubst?
 # TODO Check if the the default docker-compose version from Ubuntu Repos is suffucient.
 
 set -e
@@ -11,17 +11,25 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
+printf "Please enter your mail address: "
+read email
+printf "Pleaser enter your domain: "
+read domain
+export domain
+# Docker container name and port are static.
+
 cd "$XWIKI_DIR"
 chmod 755 config/init.sql
 docker-compose up -d
 docker-compose restart db
 
+cd "$NGINX_CERTBOT_DIR/config"
+envsubst '$domain' < app.conf_template > app.conf
+
 cd "$NGINX_CERTBOT_DIR"
-domains=(crispy-coding.org)
+domains=($domain)
 rsa_key_size=4096
 data_path="./data/certbot"
-email="chrisby@crispy-coding.org" # Adding a valid address is strongly recommended
-staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ -d "$data_path" ]; then
   read -p "Existing data found for $domains. Continue and replace existing certificate? (y/N) " decision
@@ -75,15 +83,11 @@ case "$email" in
   *) email_arg="--email $email" ;;
 esac
 
-# Enable staging mode if needed
-if [ $staging != "0" ]; then staging_arg="--staging"; fi
-
 testCert=""
 if [ "$1" == "test" ]; then testCert="--test-cert"; fi
 
 docker-compose run --rm --entrypoint "\
   certbot certonly --webroot -n -w /var/www/certbot \
-    $staging_arg \
     $email_arg \
     $domain_args \
     "$testCert" \

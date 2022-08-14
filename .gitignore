@@ -1,2 +1,3 @@
 xwiki/data
+nginx-certbot/config/app.conf
 nginx-certbot/data
