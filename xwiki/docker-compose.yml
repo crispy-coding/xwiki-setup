@@ -6,8 +6,6 @@ services:
     container_name: xwiki-web
     depends_on:
       - db
-    ports:
-      - "127.0.0.1:8080:8080"
     environment:
       - DB_USER=xwiki
       - DB_PASSWORD=db-user-password
@@ -16,8 +14,9 @@ services:
       - ./data/web:/usr/local/xwiki
       - ./config/server.xml:/usr/local/tomcat/conf/server.xml
     networks:
-      - xwiki
-      - nginx
+      xwiki:
+      nginx:
+        ipv4_address: 172.23.0.15
   db:
     image: "mariadb:10.7.3"
     container_name: xwiki-mariadb-db
