@@ -3,6 +3,8 @@
 # TODO Check if other software is needed.
 # TODO Check if the the default docker-compose version from Ubuntu Repos is suffucient.
 
+set -e
+
 NGINX_CERTBOT_DIR="$(pwd)/nginx-certbot"
 XWIKI_DIR="$(pwd)/xwiki"
 
@@ -10,12 +12,6 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
   exit 1
 fi
-
-docker network create \
-  --driver=bridge \
-  --subnet=172.23.0.0/24 \
-  --gateway=172.23.0.1 \
-  nginx
 
 cd "$XWIKI_DIR"
 chmod 755 config/init.sql
