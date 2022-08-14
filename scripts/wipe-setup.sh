@@ -1,7 +1,6 @@
 #!/bin/bash
 
-NGINX_CERTBOT_DIR="$(pwd)/nginx-certbot"
-XWIKI_DIR="$(pwd)/xwiki"
+. env.sh
 
 cd "$NGINX_CERTBOT_DIR"
 docker-compose down

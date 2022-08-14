@@ -4,9 +4,7 @@
 # TODO Check if the the default docker-compose version from Ubuntu Repos is suffucient.
 
 set -e
-
-NGINX_CERTBOT_DIR="$(pwd)/nginx-certbot"
-XWIKI_DIR="$(pwd)/xwiki"
+. env.sh
 
 if ! [ -x "$(command -v docker-compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
