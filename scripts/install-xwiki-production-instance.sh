@@ -78,11 +78,15 @@ esac
 # Enable staging mode if needed
 if [ $staging != "0" ]; then staging_arg="--staging"; fi
 
+testCert=""
+if [ "$1" == "test" ]; then testCert="--test-cert"; fi
+
 docker-compose run --rm --entrypoint "\
   certbot certonly --webroot -w /var/www/certbot \
     $staging_arg \
     $email_arg \
     $domain_args \
+    "$testCert" \
     --rsa-key-size $rsa_key_size \
     --agree-tos \
     --force-renewal" certbot
