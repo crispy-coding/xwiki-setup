@@ -6,7 +6,7 @@ services:
     container_name: nginx
     restart: unless-stopped
     volumes:
-      - ./config:/etc/nginx/conf.d
+      - ./data/nginx/conf.d:/etc/nginx/conf.d
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     depends_on:
@@ -39,7 +39,7 @@ services:
       - DB_HOST=xwiki-mariadb-db
     volumes:
       - ./data/web:/usr/local/xwiki
-      - ./config/server.xml:/usr/local/tomcat/conf/server.xml
+      - ./config/xwiki/server.xml:/usr/local/tomcat/conf/server.xml
     networks:
       xwiki:
       nginx:
@@ -49,8 +49,8 @@ services:
     image: "mariadb:10.7.3"
     container_name: xwiki-mariadb-db
     volumes:
-      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./config/xwiki.cnf:/etc/mysql/conf.d/xwiki.cnf
+      - ./config/mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/mariadb/xwiki.cnf:/etc/mysql/conf.d/xwiki.cnf
       - ./data/db:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=db-root-password

@@ -20,7 +20,8 @@ read domain
 export domain
 # Docker container name and port are static.
 
-envsubst '$domain' < config/app.conf_template > config/app.conf
+mkdir -p data/nginx/conf.d
+envsubst '$domain' < config/nginx/app.conf_template > data/nginx/conf.d/app.conf
 
 domains=($domain)
 rsa_key_size=4096
@@ -37,8 +38,8 @@ fi
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Copying recommended TLS parameters ..."
   mkdir -p "$data_path/conf"
-  cp "config/options-ssl-nginx.conf" "$data_path/conf/options-ssl-nginx.conf"
-  cp "config/ssl-dhparams.pem" "$data_path/conf/ssl-dhparams.pem"
+  cp "config/certbot/options-ssl-nginx.conf" "$data_path/conf/options-ssl-nginx.conf"
+  cp "config/certbot/ssl-dhparams.pem" "$data_path/conf/ssl-dhparams.pem"
   echo
 fi
 
