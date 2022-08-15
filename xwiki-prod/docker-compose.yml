@@ -9,6 +9,8 @@ services:
       - ./config:/etc/nginx/conf.d
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
+    depends_on:
+      - "xwiki"
     ports:
       - "80:80"
       - "443:443"
@@ -16,6 +18,7 @@ services:
       nginx:
         ipv4_address: 172.23.0.16
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
   certbot:
     image: certbot/certbot
     restart: unless-stopped
@@ -25,7 +28,41 @@ services:
       - ./data/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
+  xwiki:
+    image: "xwiki:13.10.8"
+    container_name: xwiki-web
+    depends_on:
+      - mariadb
+    environment:
+      - DB_USER=xwiki
+      - DB_PASSWORD=db-user-password
+      - DB_HOST=xwiki-mariadb-db
+    volumes:
+      - ./data/web:/usr/local/xwiki
+      - ./config/server.xml:/usr/local/tomcat/conf/server.xml
+    networks:
+      xwiki:
+      nginx:
+        ipv4_address: 172.23.0.15
+
+  mariadb:
+    image: "mariadb:10.7.3"
+    container_name: xwiki-mariadb-db
+    volumes:
+      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/xwiki.cnf:/etc/mysql/conf.d/xwiki.cnf
+      - ./data/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=db-root-password
+      - MYSQL_USER=xwiki
+      - MYSQL_PASSWORD=db-user-password
+      - MYSQL_DATABASE=xwiki
+    networks:
+      - xwiki
+
 networks:
+  xwiki:
+    name: xwiki
   nginx:
     name: nginx
     driver: bridge

@@ -4,7 +4,6 @@
 # TODO Check if the the default docker-compose version from Ubuntu Repos is suffucient.
 
 set -e
-. env.sh
 
 if ! [ -x "$(command -v docker-compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
@@ -18,15 +17,12 @@ read domain
 export domain
 # Docker container name and port are static.
 
-cd "$XWIKI_DIR"
 chmod 755 config/init.sql
-docker-compose up -d
-docker-compose restart db
+docker-compose up -d xwiki mariadb
+docker-compose restart mariadb
 
-cd "$NGINX_CERTBOT_DIR/config"
-envsubst '$domain' < app.conf_template > app.conf
+envsubst '$domain' < config/app.conf_template > config/app.conf
 
-cd "$NGINX_CERTBOT_DIR"
 domains=($domain)
 rsa_key_size=4096
 data_path="./data/certbot"
@@ -68,7 +64,6 @@ docker-compose run --rm --entrypoint "\
   rm -Rf /etc/letsencrypt/archive/$domains && \
   rm -Rf /etc/letsencrypt/renewal/$domains.conf" certbot
 echo
-
 
 echo "### Requesting Let's Encrypt certificate for $domains ..."
 #Join $domains to -d args
