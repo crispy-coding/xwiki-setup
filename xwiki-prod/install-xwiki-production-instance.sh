@@ -5,20 +5,39 @@
 
 set -e
 
-testCert=""
-if [ "$1" == "test" ]; then testCert="--test-cert"; fi
-
 if ! [ -x "$(command -v docker-compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
   exit 1
 fi
 
-printf "Please enter your mail address: "
-read email
-printf "Pleaser enter your domain: "
-read domain
-export domain
-# Docker container name and port are static.
+
+prompt_inputs () {
+  printf "Please enter your mail address: "
+  read email
+  printf "Pleaser enter your domain: "
+  read domain
+}
+
+# If test-mode is enabled the inputs are read from a persistent input file. If that does not exist, the inputs
+# are prompted and stored in such a file. This reduces the repeating manual input of the user during development/testing.
+testCert=""
+if [ "$1" == "test" ]; then
+  testCert="--test-cert"
+  if [ -f "test-inputs.txt" ]; then
+    readarray -t inputs < test-inputs.txt
+    email=${inputs[0]}
+    domain=${inputs[1]}
+    echo "The email address used for this setup is: $email"
+    echo "The domain used for this setup is: $domain"
+  else
+    prompt_inputs
+    echo $email > test-inputs.txt
+    echo $domain >> test-inputs.txt
+  fi
+else
+  prompt_inputs
+fi
+
 
 mkdir -p data/nginx/conf.d
 envsubst '$domain' < config/nginx/app.conf_template > data/nginx/conf.d/app.conf
