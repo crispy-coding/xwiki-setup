@@ -38,7 +38,7 @@ services:
       - DB_PASSWORD=db-user-password
       - DB_HOST=xwiki-mariadb-db
     volumes:
-      - ./data/web:/usr/local/xwiki
+      - ./data/xwiki:/usr/local/xwiki
       - ./config/xwiki/server.xml:/usr/local/tomcat/conf/server.xml
     networks:
       xwiki:
@@ -51,7 +51,7 @@ services:
     volumes:
       - ./config/mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./config/mariadb/xwiki.cnf:/etc/mysql/conf.d/xwiki.cnf
-      - ./data/db:/var/lib/mysql
+      - ./data/mariadb:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=db-root-password
       - MYSQL_USER=xwiki
