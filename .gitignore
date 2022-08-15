@@ -1,3 +1,2 @@
-xwiki/data
-nginx-certbot/config/app.conf
-nginx-certbot/data
+xwiki-prod/data
+xwiki-prod/config/app.conf
