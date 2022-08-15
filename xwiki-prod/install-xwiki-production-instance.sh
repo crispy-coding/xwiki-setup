@@ -5,6 +5,9 @@
 
 set -e
 
+testCert=""
+if [ "$1" == "test" ]; then testCert="--test-cert"; fi
+
 if ! [ -x "$(command -v docker-compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
   exit 1
@@ -51,9 +54,7 @@ echo
 
 
 echo "### Starting mariadb, xwiki and nginx ..."
-chmod 755 config/init.sql
 docker-compose up --force-recreate -d nginx xwiki mariadb
-docker-compose restart mariadb
 echo
 
 echo "### Deleting dummy certificate for $domains ..."
@@ -75,9 +76,6 @@ case "$email" in
   "") email_arg="--register-unsafely-without-email" ;;
   *) email_arg="--email $email" ;;
 esac
-
-testCert=""
-if [ "$1" == "test" ]; then testCert="--test-cert"; fi
 
 docker-compose run --rm --entrypoint "\
   certbot certonly --webroot -n -w /var/www/certbot \
