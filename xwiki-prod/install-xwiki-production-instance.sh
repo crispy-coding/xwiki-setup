@@ -16,23 +16,22 @@ prompt_inputs () {
   read email
   printf "Pleaser enter your domain: "
   read domain
+  # Required for the 'envsubst' command below.
+  export domain
 }
 
 # If test-mode is enabled the inputs are read from a persistent input file. If that does not exist, the inputs
 # are prompted and stored in such a file. This reduces the repeating manual input of the user during development/testing.
-testCert=""
 if [ "$1" == "test" ]; then
   testCert="--test-cert"
-  if [ -f "test-inputs.txt" ]; then
-    readarray -t inputs < test-inputs.txt
-    email=${inputs[0]}
-    domain=${inputs[1]}
-    echo "The email address used for this setup is: $email"
-    echo "The domain used for this setup is: $domain"
+  if [ -f "config/test-inputs.txt" ]; then
+    readarray -t inputs < config/test-inputs.txt
+    email="${inputs[0]}"
+    domain="${inputs[1]}"
   else
     prompt_inputs
-    echo $email > test-inputs.txt
-    echo $domain >> test-inputs.txt
+    echo $email > config/test-inputs.txt
+    echo $domain >> config/test-inputs.txt
   fi
 else
   prompt_inputs
