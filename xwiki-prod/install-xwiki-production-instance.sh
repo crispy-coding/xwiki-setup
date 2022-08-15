@@ -17,10 +17,6 @@ read domain
 export domain
 # Docker container name and port are static.
 
-chmod 755 config/init.sql
-docker-compose up -d xwiki mariadb
-docker-compose restart mariadb
-
 envsubst '$domain' < config/app.conf_template > config/app.conf
 
 domains=($domain)
@@ -54,8 +50,10 @@ docker-compose run --rm --entrypoint "\
 echo
 
 
-echo "### Starting nginx ..."
-docker-compose up --force-recreate -d nginx
+echo "### Starting mariadb, xwiki and nginx ..."
+chmod 755 config/init.sql
+docker-compose up --force-recreate -d nginx xwiki mariadb
+docker-compose restart mariadb
 echo
 
 echo "### Deleting dummy certificate for $domains ..."
