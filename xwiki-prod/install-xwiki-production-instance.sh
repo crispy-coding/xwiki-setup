@@ -22,7 +22,6 @@ if ! [ -x "$(command -v envsubst)" ]; then
   exit 1
 fi
 
-printf "\n### Asking user to provide inputs ...\n"
 prompt_inputs () {
   echo "The email address is used by Let's Encrypt to warn you about your soon expiring certificates"
   echo "or when you use deprecated software. The email address will not be shared with the public."
@@ -34,6 +33,7 @@ prompt_inputs () {
   read domain
 }
 
+printf "\n### Preparing email address and domain inputs ...\n"
 # If test-mode is enabled the inputs are read from a persistent input file. If that does not exist, the inputs
 # are prompted and stored in such a file. This reduces the repeating manual input of the user during development/testing.
 if [ "$1" == "test" ]; then
@@ -68,15 +68,21 @@ if [ -d "$data_path" ]; then
   fi
 fi
 
+printf "\n### Preparing recommended TLS parameters ...\n"
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
-  printf "\n### Copying recommended TLS parameters ...\n"
   mkdir -p "$data_path/conf"
   cp "config/certbot/options-ssl-nginx.conf" "$data_path/conf/options-ssl-nginx.conf"
   cp "config/certbot/ssl-dhparams.pem" "$data_path/conf/ssl-dhparams.pem"
-  echo
 fi
 
-echo "### Creating dummy certificate for $domains ..."
+printf "\n### Preparing passwords for mariadb access ...\n"
+if [ ! -e ".env" ]; then
+  echo "Generating new passwords to '.env' file ..."
+  echo "DB_USER_PASSWORD=\"$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c25)\"" > .env
+  echo "DB_ROOT_PASSWORD=\"$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c25)\"" >> .env
+fi
+
+printf "\n### Creating dummy certificate for $domains ...\n"
 path="/etc/letsencrypt/live/$domains"
 mkdir -p "$data_path/conf/live/$domains"
 docker-compose run --rm --entrypoint "\
@@ -84,21 +90,17 @@ docker-compose run --rm --entrypoint "\
     -keyout '$path/privkey.pem' \
     -out '$path/fullchain.pem' \
     -subj '/CN=localhost'" certbot
-echo
 
-
-echo "### Starting mariadb, xwiki and nginx ..."
+printf "\n### Starting mariadb, xwiki and nginx ...\n"
 docker-compose up --force-recreate -d nginx xwiki mariadb
-echo
 
-echo "### Deleting dummy certificate for $domains ..."
+printf "\n### Deleting dummy certificate for $domains ...\n"
 docker-compose run --rm --entrypoint "\
   rm -Rf /etc/letsencrypt/live/$domains && \
   rm -Rf /etc/letsencrypt/archive/$domains && \
   rm -Rf /etc/letsencrypt/renewal/$domains.conf" certbot
-echo
 
-echo "### Requesting Let's Encrypt certificate for $domains ..."
+printf "\n### Requesting Let's Encrypt certificate for $domains ...\n"
 #Join $domains to -d args
 domain_args=""
 for domain in "${domains[@]}"; do
@@ -124,10 +126,11 @@ echo
 if [ "$1" == "test" ]; then
   printf "\n### Since this is a test, the setup is shut down and all data are deleted.\n"
   docker-compose down 2>/dev/null
-  rm -rf data
+  rm -rf data .env
 else 
-  echo "### Reloading nginx ..."
+  echo "Reloading nginx ..."
   docker-compose exec nginx nginx -s reload
-  echo "### Starting the docker-compose setup ..."
+  echo "Starting the docker-compose setup ..."
   docker-compose up -d  
+  printf "\nYou can find the mariadb passwords in the '.env' file.\n"
 fi

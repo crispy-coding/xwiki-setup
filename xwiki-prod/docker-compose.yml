@@ -35,7 +35,7 @@ services:
       - mariadb
     environment:
       - DB_USER=xwiki
-      - DB_PASSWORD=db-user-password
+      - DB_PASSWORD="$DB_USER_PASSWORD"
       - DB_HOST=xwiki-mariadb-db
     volumes:
       - ./data/xwiki:/usr/local/xwiki
@@ -53,9 +53,9 @@ services:
       - ./config/mariadb/xwiki.cnf:/etc/mysql/conf.d/xwiki.cnf
       - ./data/mariadb:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=db-root-password
+      - MYSQL_ROOT_PASSWORD="$DB_ROOT_PASSWORD"
       - MYSQL_USER=xwiki
-      - MYSQL_PASSWORD=db-user-password
+      - MYSQL_PASSWORD="$DB_USER_PASSWORD"
       - MYSQL_DATABASE=xwiki
     networks:
       - xwiki
