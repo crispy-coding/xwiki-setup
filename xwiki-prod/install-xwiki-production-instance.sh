@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# TODO Check if other software is needed: envsubst?
-# TODO Check if the the default docker-compose version from Ubuntu Repos is sufficient.
-# TODO Add logic for empty email field. Use ' --register-unsafely-without-email' for certbot.
-
 printf "\n### Checking if all required compnents are installed ...\n"
 if ! [ -x "$(command -v docker)" ]; then
   echo 'Error: docker is not installed.' >&2
@@ -12,6 +8,12 @@ fi
 
 if ! [ -x "$(command -v docker-compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
+  exit 1
+fi
+
+IFS='.' read -r -a dockerComposeVersion <<< $(docker-compose version --short)
+if [ "${dockerComposeVersion[0]}" == "1" ] && [ "${dockerComposeVersion[1]}" -lt "29" ]; then
+  echo "Your current docker-compose version is $(docker-compose version --short) but it should be at least 1.29. Please update."
   exit 1
 fi
 
