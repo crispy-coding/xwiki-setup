@@ -1,20 +1,34 @@
 #!/bin/bash
 
 # TODO Check if other software is needed: envsubst?
-# TODO Check if the the default docker-compose version from Ubuntu Repos is suffucient.
+# TODO Check if the the default docker-compose version from Ubuntu Repos is sufficient.
+# TODO Add logic for empty email field. Use ' --register-unsafely-without-email' for certbot.
 
-set -e
+printf "\n### Checking if all required compnents are installed ...\n"
+if ! [ -x "$(command -v docker)" ]; then
+  echo 'Error: docker is not installed.' >&2
+  exit 1
+fi
 
 if ! [ -x "$(command -v docker-compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
   exit 1
 fi
 
+if ! [ -x "$(command -v envsubst)" ]; then
+  echo "Error: envsubst is not installed. Please install the 'gettext-base' package." >&2
+  exit 1
+fi
 
+printf "\n### Asking user to provide inputs ...\n"
 prompt_inputs () {
-  printf "Please enter your mail address: "
+  echo "The email address is used by Let's Encrypt to warn you about your soon expiring certificates"
+  echo "or when you use deprecated software. The email address will not be shared with the public."
+  echo "Though I recommend to enter an email address, you can leave that field empty."
+  printf "Please enter your mail address (e.g. 'me@mycompany.com'): "
   read email
-  printf "Pleaser enter your domain: "
+  echo "Mandatory field. Let's will contact the letsencrypt server at that domain to verify that you really own it."
+  printf "Please enter your domain (e.g. 'my-company.com'): "
   read domain
 }
 
@@ -23,6 +37,7 @@ prompt_inputs () {
 if [ "$1" == "test" ]; then
   testCert="--test-cert"
   if [ -f "config/test-inputs.txt" ]; then
+    echo "Existing inputs found in config/test-inputs.txt. No manual input entering required."
     readarray -t inputs < config/test-inputs.txt
     email="${inputs[0]}"
     domain="${inputs[1]}"
@@ -51,9 +66,8 @@ if [ -d "$data_path" ]; then
   fi
 fi
 
-
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
-  echo "### Copying recommended TLS parameters ..."
+  printf "\n### Copying recommended TLS parameters ...\n"
   mkdir -p "$data_path/conf"
   cp "config/certbot/options-ssl-nginx.conf" "$data_path/conf/options-ssl-nginx.conf"
   cp "config/certbot/ssl-dhparams.pem" "$data_path/conf/ssl-dhparams.pem"
@@ -105,8 +119,13 @@ docker-compose run --rm --entrypoint "\
     --force-renewal" certbot
 echo
 
-echo "### Reloading nginx ..."
-docker-compose exec nginx nginx -s reload
-
-echo "### Starting the docker-compose setup ..."
-docker-compose up -d
+if [ "$1" == "test" ]; then
+  printf "\n### Since this is a test, the setup is shut down and all data are deleted.\n"
+  docker-compose down 2>/dev/null
+  rm -rf data
+else 
+  echo "### Reloading nginx ..."
+  docker-compose exec nginx nginx -s reload
+  echo "### Starting the docker-compose setup ..."
+  docker-compose up -d  
+fi
