@@ -23,12 +23,12 @@ if ! [ -x "$(command -v envsubst)" ]; then
 fi
 
 prompt_inputs () {
-  echo "The email address is used by Let's Encrypt to warn you about your soon expiring certificates"
+  printf "\nThe email address is used by Let's Encrypt to warn you about your soon expiring certificates\n"
   echo "or when you use deprecated software. The email address will not be shared with the public."
-  echo "Though I recommend to enter an email address, you can leave that field empty."
+  echo "Though it is recommended to enter an email address, you can leave that field empty."
   printf "Please enter your mail address (e.g. 'me@mycompany.com'): "
   read email
-  echo "Mandatory field. Let's will contact the letsencrypt server at that domain to verify that you really own it."
+  printf "\nThis is a mandatory field. Certbot will let the Let's Encrypt server contact this domain to verify that you really own it.\n"
   printf "Please enter your domain (e.g. 'my-company.com'): "
   read domain
 }
