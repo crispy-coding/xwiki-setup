@@ -16,8 +16,6 @@ prompt_inputs () {
   read email
   printf "Pleaser enter your domain: "
   read domain
-  # Required for the 'envsubst' command below.
-  export domain
 }
 
 # If test-mode is enabled the inputs are read from a persistent input file. If that does not exist, the inputs
@@ -39,6 +37,7 @@ fi
 
 
 mkdir -p data/nginx/conf.d
+export domain
 envsubst '$domain' < config/nginx/app.conf_template > data/nginx/conf.d/app.conf
 
 domains=($domain)
