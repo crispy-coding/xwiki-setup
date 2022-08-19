@@ -22,6 +22,20 @@ if ! [ -x "$(command -v envsubst)" ]; then
   exit 1
 fi
 
+printf "\n### Checking if data of old deployment is contained within current folder ...\n"
+if [ -d "data" ] || [ -f ".env" ] ; then
+  read -p  "Existing 'data' directory and/or '.env' file with database passwords found in current folder. There seems to be an old deployment. \
+Do you want to delete all its persistent data and set up a new, empty XWiki instance? (y/N) " deleteOldData
+
+  if [ "$deleteOldData" == "Y" ] || [ "$deleteOldData" == "y" ]; then
+    echo "Deleting data of old deployment ..."
+    rm -rf data .env
+  else
+    echo "The old deployment data was not deleted and the script is aborted."
+    exit 
+  fi
+fi
+
 prompt_inputs () {
   printf "\nThe email address is used by Let's Encrypt to warn you about your soon expiring certificates\n"
   echo "or when you use deprecated software. The email address will not be shared with the public."
