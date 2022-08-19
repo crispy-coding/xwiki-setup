@@ -51,7 +51,7 @@ cd xwiki-setup/xwiki-prod
 bash install-xwiki-production-instance.sh
 ```
 
-Enter the required inputs and that's it. When the script is finished, you can access your XWiki instance with your browser at `https://<your-domain>`. The database passwords are stored in the `.env` file.
+Enter the required inputs and that's it. When the script is finished, you can access your XWiki instance with your browser at `https://<your-domain>`. The database passwords are stored in the `.env` file and all other persistent data are stored in the `data` folder. If you intend to backup or move the XWiki server to another machine, you should copy/move the entire `xwiki-prod` folder.
 
 Note that Let's Encrypt limits the number of free certificates to 5 per week. If you run this script too often, it may not work until the limit time has expired.
 
