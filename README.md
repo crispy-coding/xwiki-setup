@@ -13,7 +13,7 @@ The test instance is used to take a first look at XWiki's graphical user interfa
 ### Software Requirements for the Host Device
 
 * Ubuntu 20.04 (I have not tried other systems, yet. Probably other operating systems will work as well.)
-* docker
+* docker (version 20.10.12+, API version 1.41+)
 * docker-compose (version 1.29+): If Ubuntu does not provide such package version in its repositories, then you can use the binary of, e.g., version 1.29 from the [docker-compose release page](https://github.com/docker/compose/releases).
 
 
@@ -62,7 +62,7 @@ docker-compose down
 docker-compose up -d 
 ```
 
-If you intent to reset the deployment, delete all data (including passwords) and then execute:
+If you intent to reset the deployment, which includes deleting all data (including passwords and certificates), then execute:
 
 ```sh
 docker-compose down; rm -rf data .env
@@ -89,5 +89,5 @@ Compared to the regular execution from the section above, this has following adv
 
 ## Technical Problems and Acknowledgements
 
-Thanks to [this article](https://pentacent.medium.com/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71) by Philipp Schmieder, it was quite easy to set up an Nginx service and a Let's Encrypt certificate. After that, I simply deployed XWiki behind Nginx. I was able to access XWiki via browser, but trying to install a flavor or extensions resulted in a [mixed content bug](https://forum.xwiki.org/t/xwiki-https-mixed-content-10-11-docker-container-behind-nginx-proxy-rest-nightmare/4311). When I clicked a button to run an installation, the browser gave an error message about mixed content, but nothing else happened. As far as I know, the Tomcat service tries to send HTTP content and the browser refuses to accept it due to the lack of encryption. The solution was to configure Tomcat to use HTTPS, which was pointed out by the [documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/AdminGuide/Installation/InstallationWAR/InstallationTomcat/#Hhttps28secure29) and the issue reporter "unadequate", who shared the necessary adjustments [in the above bug report](https://forum.xwiki.org/t/xwiki-https-mixed-content-10-11-docker-container-behind-nginx-proxy-rest-nightmare/4311/2). Thanks to them, I was able to automate this configuration and simplify the deployment process: Tomcat needs to know the IP address from which the network traffic originates. If Nginx is installed directly on the host, this IP address would be `127.0.0.1` as pointed out in the docs, but since this setup uses Docker containers, I had to assign static IP addresses to the containers instead and apply that IP address to the `server.xml` Tomcat configuration.
+Thanks to [this article](https://pentacent.medium.com/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71) by Philipp Schmieder, it was quite easy to set up an Nginx service and a Let's Encrypt certificate. After that, I simply deployed XWiki behind Nginx. I was able to access XWiki via browser, but trying to install a flavor or extensions resulted in a [mixed content bug](https://forum.xwiki.org/t/xwiki-https-mixed-content-10-11-docker-container-behind-nginx-proxy-rest-nightmare/4311). When I clicked a button to run an installation, the browser gave an error message about mixed content, but nothing else happened. As far as I know, the Tomcat service tries to send HTTP content and the browser refuses to accept it due to the lack of encryption. The solution was to configure Tomcat to use HTTPS, which was pointed out by the [documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/AdminGuide/Installation/InstallationWAR/InstallationTomcat/#Hhttps28secure29) and the issue reporter "unadequate", who shared the necessary adjustments [in the above bug report](https://forum.xwiki.org/t/xwiki-https-mixed-content-10-11-docker-container-behind-nginx-proxy-rest-nightmare/4311/2). Thanks to them, I was able to automate this configuration and simplify the deployment process: Tomcat needs to know the IP address from which the network traffic originates. If Nginx is installed directly on the host, this IP address would be `127.0.0.1` as pointed out in the docs, but since this setup uses Docker containers, I had to assign static IP addresses to the containers instead and apply that static IP address to the `server.xml` Tomcat configuration.
 
