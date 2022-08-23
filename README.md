@@ -1,6 +1,6 @@
 # XWiki Setup
 
-The reason I started this project is that I like XWiki as a personal knowledge database that can be shared with the public. I wanted to have my own self-hosted XWiki server, but the deployment with Nginx and Let's Encrypt via Docker is a little tricky. Since XWiki is pretty cool software, it would be a pity if the deployment was an obstacle that drives people away from it. So I decided to automate the deployment process and keep the effort required to a minimum. There are two deployment options: 1) a test instance and 2) a production instance with automatically generated certificate.
+There are two deployment options: 1) a test instance and 2) a production instance with automatically generated certificate.
 
 
 
