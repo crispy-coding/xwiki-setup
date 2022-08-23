@@ -14,9 +14,11 @@ The test instance is used to take a first look at XWiki's graphical user interfa
 
 * Ubuntu 20.04 (I have not tried other systems, yet. Probably other operating systems will work as well.)
 * docker (version 20.10.12+, API version 1.41+)
-* docker-compose (version 1.29+): If Ubuntu does not provide such package version in its repositories, then you can use the binary of, e.g., version 1.29 from the [docker-compose release page](https://github.com/docker/compose/releases).
-
-
+* docker-compose (version 1.29+): If Ubuntu does not provide such package version in its repositories, then you can use the binary of, e.g., version 1.29 from the [docker-compose release page](https://github.com/docker/compose/releases). An example installation for Linux x86_64 architecture could look like this:
+  ```sh
+  sudo wget -O /usr/bin/docker-compose https://github.com/docker/compose/releases/download/v2.10.0/docker-compose-linux-x86_64
+  sudo chmod +x /usr/bin/docker-compose
+  ```
 
 ### Deployment
 
