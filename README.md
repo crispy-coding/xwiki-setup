@@ -43,6 +43,7 @@ If you like XWiki, you can easily set it up for production with persistent data,
 * All software requirements mentioned above in the requirements of the "Test Instance" documentation are needed here as well.
 * `envsubst` command. Contained in the `gettext-base` package.
 * A registered domain which directs requests to the IP address of the host device, e.g. `my-company.com`.
+* The Nginx service of this setup will listen on ports 80 and 443. Make sure that no other service is already using these ports.
 
 
 
