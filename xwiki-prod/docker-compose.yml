@@ -31,6 +31,7 @@ services:
   xwiki:
     image: "xwiki:13.10.8"
     container_name: xwiki-web
+    restart: unless-stopped
     depends_on:
       - mariadb
     environment:
@@ -48,6 +49,7 @@ services:
   mariadb:
     image: "mariadb:10.7.3"
     container_name: xwiki-mariadb-db
+    restart: unless-stopped
     volumes:
       - ./config/mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./config/mariadb/xwiki.cnf:/etc/mysql/conf.d/xwiki.cnf
